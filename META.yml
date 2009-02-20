@@ -1,0 +1,15 @@
+--- 
+abstract: Apply roles to action instances
+author: 
+  - Florian Ragwitz <rafl@debian.org>
+generated_by: Dist::Zilla::Plugin::MetaYaml version 1.004
+license: perl
+name: Catalyst-Controller-ActionRole
+requires: 
+  Catalyst::Runtime: 0
+  Class::MOP: 0
+  Moose: 0.70
+  MooseX::Types::Moose: 0
+  String::RewritePrefix: 0
+  namespace::clean: 0
+version: 0.01
