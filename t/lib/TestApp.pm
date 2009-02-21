@@ -1,11 +1,12 @@
-use strict;
-use warnings;
-
 package TestApp;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
-use parent qw/Catalyst/;
+use Moose;
+
+use namespace::clean -except => 'meta';
+
+extends 'Catalyst';
 
 __PACKAGE__->setup;
 
