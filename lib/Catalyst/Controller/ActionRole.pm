@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -37,6 +37,9 @@ has _action_roles => (
     auto_deref => 1,
 );
 
+# FIXME: this isn't what BUILDARGS was intended for. I guess the expansion
+# should be done in a trigger.
+
 override BUILDARGS => sub {
     my ($self) = @_;
     my $args = super;
@@ -52,7 +55,7 @@ sub create_action {
     my ($self, %args) = @_;
 
     my $class = exists $args{attributes}->{ActionClass}
-        ? $args{attributes}->{ActionClass}
+        ? $args{attributes}->{ActionClass}->[0]
         : $self->_action_class;
 
     Class::MOP::load_class($class);
@@ -98,7 +101,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
