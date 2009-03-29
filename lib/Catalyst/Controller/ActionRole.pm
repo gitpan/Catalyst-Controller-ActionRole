@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.03';
+our $VERSION = '0.04_01';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -13,17 +13,6 @@ use MooseX::Types::Moose qw/ArrayRef RoleName/;
 use namespace::clean -except => 'meta';
 
 extends 'Catalyst::Controller';
-
-if ($Catalyst::VERSION < 5.8 && !__PACKAGE__->isa('Moose::Object')) {
-    unshift our @ISA, 'Moose::Object';
-
-    around new => sub {
-        my $next = shift;
-        my ($self, $app) = @_;
-        my $arguments = ( ref( $_[-1] ) eq 'HASH' ) ? $_[-1] : {};
-        return $self->$next( $self->merge_config_hashes($self->config, $arguments) );
-    };
-}
 
 
 __PACKAGE__->mk_classdata(qw/_action_role_prefix/);
@@ -101,7 +90,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.03
+version 0.04_01
 
 =head1 SYNOPSIS
 

@@ -6,10 +6,10 @@ generated_by: Dist::Zilla::Plugin::MetaYaml version 1.004
 license: perl
 name: Catalyst-Controller-ActionRole
 requires: 
-  Catalyst::Runtime: 0
+  Catalyst::Runtime: 5.71001
   Class::MOP: 0
   Moose: 0.70
   MooseX::Types::Moose: 0
   String::RewritePrefix: 0
   namespace::clean: 0
-version: 0.03
+version: 0.04_01
