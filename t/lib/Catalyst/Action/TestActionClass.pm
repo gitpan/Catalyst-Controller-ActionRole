@@ -1,5 +1,5 @@
 package Catalyst::Action::TestActionClass;
-our $VERSION = '0.04_01';
+our $VERSION = '0.05';
 
 use parent 'Catalyst::Action';
 

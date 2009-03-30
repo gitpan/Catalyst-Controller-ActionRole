@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.04_01';
+our $VERSION = '0.05';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -8,7 +8,7 @@ use Class::MOP;
 use Catalyst::Utils;
 use Moose::Meta::Class;
 use String::RewritePrefix;
-use MooseX::Types::Moose qw/ArrayRef RoleName/;
+use MooseX::Types::Moose qw/ArrayRef Str RoleName/;
 
 use namespace::clean -except => 'meta';
 
@@ -19,25 +19,34 @@ __PACKAGE__->mk_classdata(qw/_action_role_prefix/);
 __PACKAGE__->_action_role_prefix('Catalyst::Action::Role::');
 
 
-has _action_roles => (
+has _action_role_args => (
     is         => 'ro',
-    isa        => ArrayRef[RoleName],
+    isa        => ArrayRef[Str],
     init_arg   => 'action_roles',
     auto_deref => 1,
 );
 
-# FIXME: this isn't what BUILDARGS was intended for. I guess the expansion
-# should be done in a trigger.
+has _action_roles => (
+    is         => 'ro',
+    isa        => ArrayRef[RoleName],
+    init_arg   => undef,
+    lazy_build => 1,
+    auto_deref => 1,
+);
 
-override BUILDARGS => sub {
-    my ($self) = @_;
-    my $args = super;
-    if (my $roles = $args->{action_roles}) {
-        my @roles = $self->_expand_role_shortname(@{ $roles });
-        Class::MOP::load_class($_) for @roles;
-        $args->{action_roles} = \@roles;
-    }
-    return $args;
+sub _build__action_roles {
+    my $self = shift;
+    my @roles = $self->_expand_role_shortname($self->_action_role_args);
+    Class::MOP::load_class($_) for @roles;
+    return \@roles;
+}
+
+around new => sub {
+    my $next = shift;
+    my $self = $next->(@_);
+    # force this to run at object creation time
+    $self->_action_roles;
+    return $self;
 };
 
 sub create_action {
@@ -90,7 +99,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.04_01
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -142,9 +151,10 @@ every action of this controller. It can be set by passing a C<action_roles>
 argument to the constructor. The same expansions as for C<Does> will be
 performed.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
   Florian Ragwitz <rafl@debian.org>
+  Hans Dieter Pearcey <hdp@weftsoar.net>
 
 =head1 COPYRIGHT AND LICENSE
 

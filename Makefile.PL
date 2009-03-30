@@ -7,9 +7,9 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
   DISTNAME  => 'Catalyst-Controller-ActionRole',
   NAME      => 'Catalyst::Controller::ActionRole',
-  AUTHOR    => 'Florian\ Ragwitz\ \<rafl\@debian\.org\>',
+  AUTHOR    => 'Florian\ Ragwitz\ \<rafl\@debian\.org\>\,\ Hans\ Dieter\ Pearcey\ \<hdp\@weftsoar\.net\>',
   ABSTRACT  => 'Apply roles to action instances',
-  VERSION   => '0.04_01',
+  VERSION   => '0.05',
   EXE_FILES => [ qw() ],
   (eval { ExtUtils::MakeMaker->VERSION(6.21) } ? (LICENSE => 'perl') : ()),
   PREREQ_PM    => {
