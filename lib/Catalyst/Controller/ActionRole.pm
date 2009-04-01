@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -9,6 +9,7 @@ use Catalyst::Utils;
 use Moose::Meta::Class;
 use String::RewritePrefix;
 use MooseX::Types::Moose qw/ArrayRef Str RoleName/;
+use List::Util qw(first);
 
 use namespace::clean -except => 'meta';
 
@@ -16,7 +17,7 @@ extends 'Catalyst::Controller';
 
 
 __PACKAGE__->mk_classdata(qw/_action_role_prefix/);
-__PACKAGE__->_action_role_prefix('Catalyst::Action::Role::');
+__PACKAGE__->_action_role_prefix([ 'Catalyst::Action::Role::' ]);
 
 
 has _action_role_args => (
@@ -77,9 +78,17 @@ sub _expand_role_shortname {
     my ($self, @shortnames) = @_;
     my $app = Catalyst::Utils::class2appclass(blessed($self) || $self);
 
+    my @prefixes = (qq{${app}::Action::Role::}, @{$self->_action_role_prefix});
+
     return String::RewritePrefix->rewrite(
-        { ''  => $self->_action_role_prefix,
-          '~' => qq{${app}::Action::Role::},
+        { ''  => sub {
+            my $loaded = Class::MOP::load_first_existing_class(
+                map { "$_$_[0]" } @prefixes
+            );
+            return first { $loaded =~ /^$_/ }
+              sort { length $b <=> length $a } @prefixes;
+          },
+          '~' => $prefixes[0],
           '+' => '' },
         @shortnames,
     );
@@ -99,7 +108,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -119,7 +128,8 @@ that determines the role, which is going to be applied. If that argument is
 prefixed with C<+>, it is assumed to be the full name of the role. If it's
 prefixed with C<~>, the name of your application followed by
 C<::Action::Role::> is prepended. If it isn't prefixed with C<+> or C<~>,
-the value of the C<_action_role_prefix> attribute will be prepended.
+the role name will be searched for in C<@INC> according to the rules for
+L</role prefix searching>.
 
 Additionally it's possible to to apply roles to B<all> actions of a controller
 without specifying the C<Does> keyword in every action definition:
@@ -132,17 +142,18 @@ without specifying the C<Does> keyword in every action definition:
         action_roles => ['Foo', '~Bar'],
     );
 
-    sub moo : Local { ... } # has Catalyst::Action::Role::Foo and MyApp::Action::Role::Bar applied
+    # has Catalyst::Action::Role::Foo and MyApp::Action::Role::Bar applied
+    # if MyApp::Action::Role::Foo exists and is loadable, it will take
+    # precedence over Catalyst::Action::Role::Foo
+    sub moo : Local { ... }
 
 =head1 ATTRIBUTES
 
 =head2 _action_role_prefix
 
-This class attribute stores a string that is going to be prepended to all role
-names if they aren't prefixed with C<+> or C<~>. It defaults to
-C<Catalyst::Action::Role::>.
-
-
+This class attribute stores an array reference of role prefixes to search for
+role names in if they aren't prefixed with C<+> or C<~>. It defaults to
+C<[ 'Catalyst::Action::Role::' ]>.  See L</role prefix searching>.
 
 =head2 _action_roles
 
@@ -162,4 +173,11 @@ This software is copyright (c) 2009 by Florian Ragwitz.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as perl itself.
+
+=head1 ROLE PREFIX SEARCHING
+
+Roles specified with no prefix are looked up under a set of role prefixes.  The
+first prefix is always C<MyApp::Action::Role::> (with C<MyApp> replaced as
+appropriate for your application); the following prefixes are taken from the
+C<_action_role_prefix> attribute.
 
