@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -102,21 +102,24 @@ sub _parse_Does_attr {
 1;
 
 __END__
+
+=pod
+
 =head1 NAME
 
 Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
-    package MyApp::Controller::Foo;
+      package MyApp::Controller::Foo;
 
-    use parent qw/Catalyst::Controller::ActionRole/;
+      use parent qw/Catalyst::Controller::ActionRole/;
 
-    sub bar : Local Does('Moo') { ... }
+      sub bar : Local Does('Moo') { ... }
 
 =head1 DESCRIPTION
 
@@ -129,23 +132,30 @@ prefixed with C<+>, it is assumed to be the full name of the role. If it's
 prefixed with C<~>, the name of your application followed by
 C<::Action::Role::> is prepended. If it isn't prefixed with C<+> or C<~>,
 the role name will be searched for in C<@INC> according to the rules for
-L</role prefix searching>.
+L<role prefix searching|/ROLE PREFIX SEARCHING>.
 
 Additionally it's possible to to apply roles to B<all> actions of a controller
 without specifying the C<Does> keyword in every action definition:
 
-    package MyApp::Controller::Bar
+      package MyApp::Controller::Bar
 
-    use parent qw/Catalyst::Controller::ActionRole/;
+      use parent qw/Catalyst::Controller::ActionRole/;
 
-    __PACKAGE__->config(
-        action_roles => ['Foo', '~Bar'],
-    );
+      __PACKAGE__->config(
+          action_roles => ['Foo', '~Bar'],
+      );
 
-    # has Catalyst::Action::Role::Foo and MyApp::Action::Role::Bar applied
-    # if MyApp::Action::Role::Foo exists and is loadable, it will take
-    # precedence over Catalyst::Action::Role::Foo
-    sub moo : Local { ... }
+      # has Catalyst::Action::Role::Foo and MyApp::Action::Role::Bar applied
+      # if MyApp::Action::Role::Foo exists and is loadable, it will take
+      # precedence over Catalyst::Action::Role::Foo
+      sub moo : Local { ... }
+
+=head1 ROLE PREFIX SEARCHING
+
+Roles specified with no prefix are looked up under a set of role prefixes.  The
+first prefix is always C<MyApp::Action::Role::> (with C<MyApp> replaced as
+appropriate for your application); the following prefixes are taken from the
+C<_action_role_prefix> attribute.
 
 =head1 ATTRIBUTES
 
@@ -174,10 +184,6 @@ This software is copyright (c) 2009 by Florian Ragwitz.
 This is free software; you can redistribute it and/or modify it under
 the same terms as perl itself.
 
-=head1 ROLE PREFIX SEARCHING
+=cut 
 
-Roles specified with no prefix are looked up under a set of role prefixes.  The
-first prefix is always C<MyApp::Action::Role::> (with C<MyApp> replaced as
-appropriate for your application); the following prefixes are taken from the
-C<_action_role_prefix> attribute.
 
