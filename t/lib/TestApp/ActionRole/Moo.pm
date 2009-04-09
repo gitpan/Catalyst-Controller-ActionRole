@@ -1,5 +1,5 @@
-package TestApp::Action::Role::Moo;
-our $VERSION = '0.08';
+package TestApp::ActionRole::Moo;
+our $VERSION = '0.09';
 
 
 use Moose::Role;

@@ -1,5 +1,5 @@
-package TestApp::Action::Role::Kooh;
-our $VERSION = '0.08';
+package Catalyst::ActionRole::Moo;
+our $VERSION = '0.09';
 
 
 use Moose::Role;
@@ -8,7 +8,7 @@ use namespace::clean -except => 'meta';
 
 after execute => sub {
     my ($self, $controller, $c) = @_;
-    $c->response->header('X-Affe' => 'Tiger');
+    $c->response->body(__PACKAGE__);
 };
 
 1;

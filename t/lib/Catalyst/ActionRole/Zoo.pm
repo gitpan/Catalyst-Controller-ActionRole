@@ -1,5 +1,5 @@
-package Catalyst::Action::Role::Zoo;
-our $VERSION = '0.08';
+package Catalyst::ActionRole::Zoo;
+our $VERSION = '0.09';
 
 
 use Moose::Role;

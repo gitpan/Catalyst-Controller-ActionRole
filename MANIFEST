@@ -8,12 +8,12 @@ dist.ini
 lib/Catalyst/Controller/ActionRole.pm
 t/action-class.t
 t/basic.t
-t/lib/Catalyst/Action/Role/Moo.pm
-t/lib/Catalyst/Action/Role/Zoo.pm
 t/lib/Catalyst/Action/TestActionClass.pm
+t/lib/Catalyst/ActionRole/Moo.pm
+t/lib/Catalyst/ActionRole/Zoo.pm
 t/lib/Moo.pm
 t/lib/TestApp.pm
-t/lib/TestApp/Action/Role/Kooh.pm
-t/lib/TestApp/Action/Role/Moo.pm
+t/lib/TestApp/ActionRole/Kooh.pm
+t/lib/TestApp/ActionRole/Moo.pm
 t/lib/TestApp/Controller/ActionClass.pm
 t/lib/TestApp/Controller/Foo.pm
