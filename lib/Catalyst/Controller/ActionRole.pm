@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -111,7 +111,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 

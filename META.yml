@@ -13,4 +13,4 @@ requires:
   MooseX::Types::Moose: 0
   String::RewritePrefix: 0.004
   namespace::clean: 0
-version: 0.09
+version: 0.10
