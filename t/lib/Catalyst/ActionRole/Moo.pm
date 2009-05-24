@@ -1,5 +1,5 @@
 package Catalyst::ActionRole::Moo;
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 
 use Moose::Role;

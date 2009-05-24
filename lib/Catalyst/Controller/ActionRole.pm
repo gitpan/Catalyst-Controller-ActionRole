@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -42,13 +42,11 @@ sub _build__action_roles {
     return \@roles;
 }
 
-around new => sub {
-    my $next = shift;
-    my $self = $next->(@_);
+sub BUILD {
+    my $self = shift;
     # force this to run at object creation time
     $self->_action_roles;
-    return $self;
-};
+}
 
 sub create_action {
     my ($self, %args) = @_;
@@ -99,6 +97,7 @@ sub _parse_Does_attr {
     return Does => $self->_expand_role_shortname($value);
 }
 
+
 1;
 
 __END__
@@ -111,7 +110,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
@@ -157,6 +156,14 @@ first prefix is always C<MyApp::ActionRole::> (with C<MyApp> replaced as
 appropriate for your application); the following prefixes are taken from the
 C<_action_role_prefix> attribute.
 
+=begin Pod::Coverage
+
+    BUILD
+
+=end Pod::Coverage
+
+
+
 =head1 ATTRIBUTES
 
 =head2 _action_role_prefix
@@ -165,12 +172,16 @@ This class attribute stores an array reference of role prefixes to search for
 role names in if they aren't prefixed with C<+> or C<~>. It defaults to
 C<[ 'Catalyst::ActionRole::' ]>.  See L</role prefix searching>.
 
+
+
 =head2 _action_roles
 
 This attribute stores an array reference of role names that will be applied to
 every action of this controller. It can be set by passing a C<action_roles>
 argument to the constructor. The same expansions as for C<Does> will be
 performed.
+
+
 
 =head1 AUTHORS
 
@@ -182,7 +193,7 @@ performed.
 This software is copyright (c) 2009 by Florian Ragwitz.
 
 This is free software; you can redistribute it and/or modify it under
-the same terms as perl itself.
+the same terms as the Perl 5 programming language system itself.
 
 =cut 
 
