@@ -1,5 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 # ABSTRACT: Apply roles to action instances
 
@@ -74,9 +74,10 @@ sub create_action {
 
 sub _expand_role_shortname {
     my ($self, @shortnames) = @_;
-    my $app = Catalyst::Utils::class2appclass(blessed($self) || $self);
+    my $app = $self->_application;
 
-    my @prefixes = (qq{${app}::ActionRole::}, @{$self->_action_role_prefix});
+    my $prefix = $self->can('_action_role_prefix') ? $self->_action_role_prefix : ['Catalyst::ActionRole::'];
+    my @prefixes = (qq{${app}::ActionRole::}, @$prefix);
 
     return String::RewritePrefix->rewrite(
         { ''  => sub {
@@ -110,15 +111,15 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.11
+version 0.12
 
 =head1 SYNOPSIS
 
-      package MyApp::Controller::Foo;
+    package MyApp::Controller::Foo;
 
-      use parent qw/Catalyst::Controller::ActionRole/;
+    use parent qw/Catalyst::Controller::ActionRole/;
 
-      sub bar : Local Does('Moo') { ... }
+    sub bar : Local Does('Moo') { ... }
 
 =head1 DESCRIPTION
 
@@ -136,18 +137,18 @@ L<role prefix searching|/ROLE PREFIX SEARCHING>.
 Additionally it's possible to to apply roles to B<all> actions of a controller
 without specifying the C<Does> keyword in every action definition:
 
-      package MyApp::Controller::Bar
+    package MyApp::Controller::Bar
 
-      use parent qw/Catalyst::Controller::ActionRole/;
+    use parent qw/Catalyst::Controller::ActionRole/;
 
-      __PACKAGE__->config(
-          action_roles => ['Foo', '~Bar'],
-      );
+    __PACKAGE__->config(
+        action_roles => ['Foo', '~Bar'],
+    );
 
-      # has Catalyst::ActionRole::Foo and MyApp::ActionRole::Bar applied
-      # if MyApp::ActionRole::Foo exists and is loadable, it will take
-      # precedence over Catalyst::ActionRole::Foo
-      sub moo : Local { ... }
+    # has Catalyst::ActionRole::Foo and MyApp::ActionRole::Bar applied
+    # if MyApp::ActionRole::Foo exists and is loadable, it will take
+    # precedence over Catalyst::ActionRole::Foo
+    sub moo : Local { ... }
 
 =head1 ROLE PREFIX SEARCHING
 
@@ -158,7 +159,7 @@ C<_action_role_prefix> attribute.
 
 =begin Pod::Coverage
 
-    BUILD
+  BUILD
 
 =end Pod::Coverage
 
@@ -193,7 +194,7 @@ performed.
 This software is copyright (c) 2009 by Florian Ragwitz.
 
 This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
+the same terms as perl itself.
 
 =cut 
 

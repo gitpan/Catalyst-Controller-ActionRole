@@ -1,4 +1,4 @@
-package TestApp;
+package TestAppREST;
 our $VERSION = '0.12';
 
 

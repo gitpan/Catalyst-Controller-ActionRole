@@ -8,10 +8,10 @@ WriteMakefile(
   DISTNAME  => 'Catalyst-Controller-ActionRole',
   NAME      => 'Catalyst::Controller::ActionRole',
   AUTHOR    => 'Florian\ Ragwitz\ \<rafl\@debian\.org\>\,\ Hans\ Dieter\ Pearcey\ \<hdp\@weftsoar\.net\>',
-  ABSTRACT  => 'Apply roles to action instances',
-  VERSION   => '0.11',
+  ABSTRACT  => 'Apply\ roles\ to\ action\ instances',
+  VERSION   => '0.12',
   EXE_FILES => [ qw() ],
-  (eval { ExtUtils::MakeMaker->VERSION(6.21) } ? (LICENSE => 'perl') : ()),
+  (eval { ExtUtils::MakeMaker->VERSION(6.31) } ? (LICENSE => 'perl') : ()),
   PREREQ_PM    => {
     "namespace::clean" => '0',
     "MooseX::Types::Moose" => '0',

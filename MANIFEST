@@ -8,6 +8,7 @@ dist.ini
 lib/Catalyst/Controller/ActionRole.pm
 t/action-class.t
 t/basic.t
+t/basic_rest.t
 t/lib/Catalyst/Action/TestActionClass.pm
 t/lib/Catalyst/ActionRole/Moo.pm
 t/lib/Catalyst/ActionRole/Zoo.pm
@@ -17,3 +18,6 @@ t/lib/TestApp/ActionRole/Kooh.pm
 t/lib/TestApp/ActionRole/Moo.pm
 t/lib/TestApp/Controller/ActionClass.pm
 t/lib/TestApp/Controller/Foo.pm
+t/lib/TestAppREST.pm
+t/lib/TestAppREST/ActionRole/Moo.pm
+t/lib/TestAppREST/Controller/Foo.pm
