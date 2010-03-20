@@ -21,3 +21,5 @@ t/lib/TestApp/Controller/Foo.pm
 t/lib/TestAppREST.pm
 t/lib/TestAppREST/ActionRole/Moo.pm
 t/lib/TestAppREST/Controller/Foo.pm
+t/release-pod-coverage.t
+t/release-pod-syntax.t

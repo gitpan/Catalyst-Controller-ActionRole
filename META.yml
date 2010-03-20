@@ -3,7 +3,10 @@ abstract: 'Apply roles to action instances'
 author:
   - 'Florian Ragwitz <rafl@debian.org>'
   - 'Hans Dieter Pearcey <hdp@weftsoar.net>'
-generated_by: 'Dist::Zilla::Plugin::MetaYAML version 1.091940'
+build_requires: {}
+configure_requires:
+  ExtUtils::MakeMaker: 6.11
+generated_by: 'Dist::Zilla version 1.100711'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -12,8 +15,8 @@ name: Catalyst-Controller-ActionRole
 requires:
   Catalyst::Runtime: 5.71001
   Class::MOP: 0.80
-  Moose: 0.70
+  Moose: 0.90
   MooseX::Types::Moose: 0
   String::RewritePrefix: 0.004
   namespace::clean: 0
-version: 0.12
+version: 0.13

@@ -1,6 +1,5 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.12';
-
+our $VERSION = '0.13';
 # ABSTRACT: Apply roles to action instances
 
 use Moose;
@@ -21,18 +20,23 @@ __PACKAGE__->_action_role_prefix([ 'Catalyst::ActionRole::' ]);
 
 
 has _action_role_args => (
-    is         => 'ro',
+    traits     => [qw(Array)],
     isa        => ArrayRef[Str],
     init_arg   => 'action_roles',
-    auto_deref => 1,
+    default    => sub { [] },
+    handles    => {
+        _action_role_args => 'elements',
+    },
 );
 
 has _action_roles => (
-    is         => 'ro',
+    traits     => [qw(Array)],
     isa        => ArrayRef[RoleName],
     init_arg   => undef,
     lazy_build => 1,
-    auto_deref => 1,
+    handles    => {
+        _action_roles => 'elements',
+    },
 );
 
 sub _build__action_roles {
@@ -102,7 +106,6 @@ sub _parse_Does_attr {
 1;
 
 __END__
-
 =pod
 
 =head1 NAME
@@ -111,7 +114,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.12
+version 0.13
 
 =head1 SYNOPSIS
 
@@ -157,14 +160,6 @@ first prefix is always C<MyApp::ActionRole::> (with C<MyApp> replaced as
 appropriate for your application); the following prefixes are taken from the
 C<_action_role_prefix> attribute.
 
-=begin Pod::Coverage
-
-  BUILD
-
-=end Pod::Coverage
-
-
-
 =head1 ATTRIBUTES
 
 =head2 _action_role_prefix
@@ -173,7 +168,9 @@ This class attribute stores an array reference of role prefixes to search for
 role names in if they aren't prefixed with C<+> or C<~>. It defaults to
 C<[ 'Catalyst::ActionRole::' ]>.  See L</role prefix searching>.
 
+=cut
 
+=pod
 
 =head2 _action_roles
 
@@ -182,20 +179,23 @@ every action of this controller. It can be set by passing a C<action_roles>
 argument to the constructor. The same expansions as for C<Does> will be
 performed.
 
+=cut
 
+=pod
+
+=for Pod::Coverage   BUILD
 
 =head1 AUTHORS
 
-  Florian Ragwitz <rafl@debian.org>
-  Hans Dieter Pearcey <hdp@weftsoar.net>
+Florian Ragwitz <rafl@debian.org>
+Hans Dieter Pearcey <hdp@weftsoar.net>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2009 by Florian Ragwitz.
+This software is copyright (c) 2010 by Florian Ragwitz.
 
 This is free software; you can redistribute it and/or modify it under
-the same terms as perl itself.
+the same terms as the Perl 5 programming language system itself.
 
-=cut 
-
+=cut
 
