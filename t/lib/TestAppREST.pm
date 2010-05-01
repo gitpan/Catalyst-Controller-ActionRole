@@ -1,5 +1,4 @@
 package TestAppREST;
-our $VERSION = '0.13';
 
 use Moose;
 

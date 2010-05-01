@@ -1,5 +1,7 @@
 package Catalyst::Controller::ActionRole;
-our $VERSION = '0.13';
+BEGIN {
+  $Catalyst::Controller::ActionRole::VERSION = '0.14';
+}
 # ABSTRACT: Apply roles to action instances
 
 use Moose;
@@ -114,7 +116,7 @@ Catalyst::Controller::ActionRole - Apply roles to action instances
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 
@@ -153,13 +155,6 @@ without specifying the C<Does> keyword in every action definition:
     # precedence over Catalyst::ActionRole::Foo
     sub moo : Local { ... }
 
-=head1 ROLE PREFIX SEARCHING
-
-Roles specified with no prefix are looked up under a set of role prefixes.  The
-first prefix is always C<MyApp::ActionRole::> (with C<MyApp> replaced as
-appropriate for your application); the following prefixes are taken from the
-C<_action_role_prefix> attribute.
-
 =head1 ATTRIBUTES
 
 =head2 _action_role_prefix
@@ -168,10 +163,6 @@ This class attribute stores an array reference of role prefixes to search for
 role names in if they aren't prefixed with C<+> or C<~>. It defaults to
 C<[ 'Catalyst::ActionRole::' ]>.  See L</role prefix searching>.
 
-=cut
-
-=pod
-
 =head2 _action_roles
 
 This attribute stores an array reference of role names that will be applied to
@@ -179,16 +170,19 @@ every action of this controller. It can be set by passing a C<action_roles>
 argument to the constructor. The same expansions as for C<Does> will be
 performed.
 
-=cut
+=head1 ROLE PREFIX SEARCHING
 
-=pod
+Roles specified with no prefix are looked up under a set of role prefixes.  The
+first prefix is always C<MyApp::ActionRole::> (with C<MyApp> replaced as
+appropriate for your application); the following prefixes are taken from the
+C<_action_role_prefix> attribute.
 
 =for Pod::Coverage   BUILD
 
 =head1 AUTHORS
 
-Florian Ragwitz <rafl@debian.org>
-Hans Dieter Pearcey <hdp@weftsoar.net>
+  Florian Ragwitz <rafl@debian.org>
+  Hans Dieter Pearcey <hdp@weftsoar.net>
 
 =head1 COPYRIGHT AND LICENSE
 

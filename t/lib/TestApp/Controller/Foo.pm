@@ -1,5 +1,4 @@
 package TestApp::Controller::Foo;
-our $VERSION = '0.13';
 
 use Moose;
 
