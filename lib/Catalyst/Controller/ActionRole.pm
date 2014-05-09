@@ -1,14 +1,13 @@
 package Catalyst::Controller::ActionRole;
 BEGIN {
-  $Catalyst::Controller::ActionRole::AUTHORITY = 'cpan:FLORA';
+  $Catalyst::Controller::ActionRole::AUTHORITY = 'cpan:ETHER';
 }
-BEGIN {
-  $Catalyst::Controller::ActionRole::VERSION = '0.15';
-}
-# ABSTRACT: Apply roles to action instances
+# git description: v0.15-6-g43eca1d
+$Catalyst::Controller::ActionRole::VERSION = '0.16';
+# ABSTRACT: Apply roles to action instances (DEPRECATED)
 
 use Moose;
-use Class::MOP;
+use Class::Load qw(load_class load_first_existing_class);
 use Catalyst::Utils;
 use Moose::Meta::Class;
 use String::RewritePrefix 0.004;
@@ -19,10 +18,108 @@ use namespace::clean -except => 'meta';
 
 extends 'Catalyst::Controller';
 
+#pod =head1 SYNOPSIS
+#pod
+#pod     package MyApp::Controller::Foo;
+#pod
+#pod     use Moose;
+#pod     use namespace::autoclean;
+#pod
+#pod     BEGIN { extends 'Catalyst::Controller::ActionRole' }
+#pod
+#pod     sub bar : Local Does('Moo') { ... }
+#pod
+#pod =head1 DESCRIPTION
+#pod
+#pod This module allows to apply L<Moose::Role>s to the C<Catalyst::Action>s for
+#pod different controller methods.
+#pod
+#pod For that a C<Does> attribute is provided. That attribute takes an argument,
+#pod that determines the role, which is going to be applied. If that argument is
+#pod prefixed with C<+>, it is assumed to be the full name of the role. If it's
+#pod prefixed with C<~>, the name of your application followed by
+#pod C<::ActionRole::> is prepended. If it isn't prefixed with C<+> or C<~>,
+#pod the role name will be searched for in C<@INC> according to the rules for
+#pod L<role prefix searching|/ROLE PREFIX SEARCHING>.
+#pod
+#pod It's possible to apply roles to B<all> actions of a controller without
+#pod specifying the C<Does> keyword in every action definition:
+#pod
+#pod     package MyApp::Controller::Bar
+#pod
+#pod     use Moose;
+#pod     use namespace::autoclean;
+#pod
+#pod     BEGIN { extends 'Catalyst::Controller::ActionRole' }
+#pod
+#pod     __PACKAGE__->config(
+#pod         action_roles => ['Foo', '~Bar'],
+#pod     );
+#pod
+#pod     # Has Catalyst::ActionRole::Foo and MyApp::ActionRole::Bar applied.
+#pod     #
+#pod     # If MyApp::ActionRole::Foo exists and is loadable, it will take
+#pod     # precedence over Catalyst::ActionRole::Foo.
+#pod     #
+#pod     # If MyApp::ActionRole::Bar exists and is loadable, it will be loaded,
+#pod     # but even if it doesn't exist Catalyst::ActionRole::Bar will not be loaded.
+#pod     sub moo : Local { ... }
+#pod
+#pod Additionally, roles can be applied to selected actions without specifying
+#pod C<Does> using L<Catalyst::Controller/action> and configured with
+#pod L<Catalyst::Controller/action_args>:
+#pod
+#pod     package MyApp::Controller::Baz;
+#pod
+#pod     use Moose;
+#pod     use namespace::autoclean;
+#pod
+#pod     BEGIN { extends 'Catalyst::Controller::ActionRole' }
+#pod
+#pod     __PACKAGE__->config(
+#pod         action_roles => [qw( Foo )],
+#pod         action       => {
+#pod             some_action    => { Does => [qw( ~Bar )] },
+#pod             another_action => { Does => [qw( +MyActionRole::Baz )] },
+#pod         },
+#pod         action_args  => {
+#pod             another_action => { customarg => 'arg1' },
+#pod         }
+#pod     );
+#pod
+#pod     # has Catalyst::ActionRole::Foo and MyApp::ActionRole::Bar applied
+#pod     sub some_action : Local { ... }
+#pod
+#pod     # has Catalyst::ActionRole::Foo and MyActionRole::Baz applied
+#pod     # and associated action class would get additional arguments passed
+#pod     sub another_action : Local { ... }
+#pod
+#pod =head1 ROLE PREFIX SEARCHING
+#pod
+#pod Roles specified with no prefix are looked up under a set of role prefixes.  The
+#pod first prefix is always C<MyApp::ActionRole::> (with C<MyApp> replaced as
+#pod appropriate for your application); the following prefixes are taken from the
+#pod C<_action_role_prefix> attribute.
+#pod
+#pod =attr _action_role_prefix
+#pod
+#pod This class attribute stores an array reference of role prefixes to search for
+#pod role names in if they aren't prefixed with C<+> or C<~>. It defaults to
+#pod C<[ 'Catalyst::ActionRole::' ]>.  See L</role prefix searching>.
+#pod
+#pod =cut
 
 __PACKAGE__->mk_classdata(qw/_action_role_prefix/);
 __PACKAGE__->_action_role_prefix([ 'Catalyst::ActionRole::' ]);
 
+#pod =attr _action_roles
+#pod
+#pod This attribute stores an array reference of role names that will be applied to
+#pod every action of this controller. It can be set by passing a C<action_roles>
+#pod argument to the constructor. The same expansions as for C<Does> will be
+#pod performed.
+#pod
+#pod =cut
 
 has _action_role_args => (
     traits     => [qw(Array)],
@@ -47,7 +144,7 @@ has _action_roles => (
 sub _build__action_roles {
     my $self = shift;
     my @roles = $self->_expand_role_shortname($self->_action_role_args);
-    Class::MOP::load_class($_) for @roles;
+    load_class($_) for @roles;
     return \@roles;
 }
 
@@ -66,7 +163,7 @@ around create_action => sub {
     my @roles = $self->gather_action_roles(%args);
     return $self->$orig(%args) unless @roles;
 
-    Class::MOP::load_class($_) for @roles;
+    load_class($_) for @roles;
 
     my $action_class = $self->_build_action_subclass(
         $self->action_class(%args), @roles,
@@ -81,6 +178,11 @@ around create_action => sub {
     return $action_class->new({ %extra_args, %args });
 };
 
+#pod =method gather_action_roles(\%action_args)
+#pod
+#pod Gathers the list of roles to apply to an action with the given C<%action_args>.
+#pod
+#pod =cut
 
 sub gather_action_roles {
     my ($self, %args) = @_;
@@ -116,7 +218,7 @@ sub _expand_role_shortname {
     return String::RewritePrefix->rewrite(
         {
             ''  => sub {
-                my $loaded = Class::MOP::load_first_existing_class(
+                my $loaded = load_first_existing_class(
                     map { "$_$_[0]" } @prefixes
                 );
                 return first { $loaded =~ /^$_/ }
@@ -134,17 +236,35 @@ sub _parse_Does_attr {
     return Does => $self->_expand_role_shortname($value);
 }
 
+#pod =begin Pod::Coverage
+#pod
+#pod   BUILD
+#pod
+#pod =end Pod::Coverage
+#pod
+#pod =head1 DEPRECATION NOTICE
+#pod
+#pod As of version C<5.90013>, L<Catalyst> has merged this functionality into the
+#pod core L<Catalyst::Controller>.  You should no longer use it for new development
+#pod and we'd recommend switching to the core controller as soon as practical.
+#pod
+#pod =cut
 
 1;
 
 __END__
+
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
-Catalyst::Controller::ActionRole - Apply roles to action instances
+Catalyst::Controller::ActionRole - Apply roles to action instances (DEPRECATED)
+
+=head1 VERSION
+
+version 0.16
 
 =head1 SYNOPSIS
 
@@ -170,7 +290,7 @@ C<::ActionRole::> is prepended. If it isn't prefixed with C<+> or C<~>,
 the role name will be searched for in C<@INC> according to the rules for
 L<role prefix searching|/ROLE PREFIX SEARCHING>.
 
-It's possible to to apply roles to B<all> actions of a controller without
+It's possible to apply roles to B<all> actions of a controller without
 specifying the C<Does> keyword in every action definition:
 
     package MyApp::Controller::Bar
@@ -252,17 +372,19 @@ C<_action_role_prefix> attribute.
 
 =for Pod::Coverage   BUILD
 
-=head1 AUTHORS
+=head1 DEPRECATION NOTICE
 
-=over 4
+As of version C<5.90013>, L<Catalyst> has merged this functionality into the
+core L<Catalyst::Controller>.  You should no longer use it for new development
+and we'd recommend switching to the core controller as soon as practical.
 
-=item *
+=head1 AUTHOR
 
 Florian Ragwitz <rafl@debian.org>
 
-=item *
+=head1 CONTRIBUTORS
 
-Hans Dieter Pearcey <hdp@weftsoar.net>
+=over 4
 
 =item *
 
@@ -270,24 +392,39 @@ Alex J. G. Burzyński <ajgb@ajgb.net>
 
 =item *
 
-John Napiorkowski <jjn1056@yahoo.com>
+Hans Dieter Pearcey <hdp@weftsoar.net>
 
 =item *
 
-William King <william.king@quentustech.com>
+Jason Kohles <email@jasonkohles.com>
+
+=item *
+
+John Napiorkowski <jjnapiork@cpan.org>
+
+=item *
+
+Karen Etheridge <ether@cpan.org>
+
+=item *
+
+NAKAGAWA Masaki <masaki.nakagawa@gmail.com>
 
 =item *
 
 Tomas Doran <bobtfish@bobtfish.net>
 
+=item *
+
+William King <william.king@quentustech.com>
+
 =back
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2010 by Florian Ragwitz.
+This software is copyright (c) 2009 by Florian Ragwitz.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
